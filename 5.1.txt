@@ -1,0 +1,563 @@
+#include<stdio.h>
+#include<stdlib.h>
+#define MAXn 100
+int i=1;
+struct master
+{
+	int qq;
+	char name[15];
+	int password;
+	float money;
+	int state;//状态0 1 2 
+}a[100],*p=a;
+void kaihu();//开户完成
+void guashi();//挂失完成
+void qukuan();
+void cunkuan();//存款完成
+void huan();
+void gaimi();
+void jiegua();
+void xiaohu();
+void chaxun();
+
+int main()
+{
+	
+	FILE * fp;
+	int ind=1;
+	int choose=9;
+	
+	fp=fopen("account.txt","r");
+	if(NULL==fp)
+	{
+		printf("无法打开后台文件");
+		exit(0);
+	}
+	while(fscanf(fp,"%d %s %d %f %d",&a[ind].qq,&a[ind].name,&a[ind].password,&a[ind].money,&a[ind].state)!=EOF)
+	{
+		ind++;
+	}
+	fclose(fp);
+	i=ind;
+	
+	do
+	{
+	printf("1.开户  2.存款  3.取款  4.查询   5.转账\n");
+    printf("6.改密  7.挂失  8.解挂  9.销户  10.退出\n");
+	scanf("%d",&choose);
+	if(choose==1)
+		kaihu();
+	if(choose==2)
+		cunkuan();
+	if(choose==3)
+		qukuan();
+	if(choose==4)
+		chaxun();
+	if(choose==5)
+		huan();
+	if(choose==6)
+		gaimi();
+	if(choose==7)
+		guashi();
+	if(choose==8)
+		jiegua();
+	if(choose==9)
+		xiaohu();
+	if(choose==10){
+		printf("谢谢使用\n");
+		break;}
+	}while(1);
+	fp=fopen("account.txt","w+");
+	if(NULL==fp)
+	{
+		printf("无法打开后台文件");
+		exit(0);
+	}
+	ind=1;
+	while(ind<=i-1)
+	{
+	fprintf(fp,"%d %s %d %f %d\n",a[ind].qq,a[ind].name,a[ind].password,a[ind].money,a[ind].state);
+	ind++;
+	}
+	fclose(fp);
+
+	return 0;
+}
+void chaxun()
+{
+	int j=1;
+	int qq;
+	int mima;
+	printf("请输入账号:");
+	scanf("%d",&qq);
+	printf("请输入密码");
+	scanf("%d",&mima);
+	while(1)
+	{
+		if(a[j].qq==qq)
+		{
+			if(mima==a[j].password)
+			{
+				if(a[j].state==1)
+				{
+					printf("该账户无法使用\n");
+					break;
+				}
+				printf("你正在查询-\n");
+				printf("账户: %d\n",a[j].qq);
+				printf("姓名: %s\n",a[j].name);
+				printf("密码: %d\n",a[j].password);
+				printf("金额: %.2f\n",a[j].money);
+				break;
+
+			}
+			if(a[j].qq==qq&&a[j].password!=mima)
+			{printf("密码错误\n");
+			break;
+			}
+		}
+		if(a[j].qq!=qq)
+			j++;
+		if(j==MAXn)
+		{
+			printf("未查询到该用户\n");
+			break;
+		}
+		
+	}
+}
+
+
+void kaihu()
+{
+
+	int mima1,mima2;
+	printf("账号:%d\n",1000+i);
+	a[i].qq=1000+i;
+	printf("姓名:");
+	scanf("%s",&a[i].name);
+	printf("第一次输入密码:");
+	scanf("%d",&mima1);
+	printf("再一次输入密码:");
+	scanf("%d",&mima2);
+	if(mima1==mima2)
+	{
+		printf("开户成功!\n");
+		a[i].password=mima1;
+		a[i].state=0;
+		a[i].money=0;
+		i++;
+	}
+	else
+	{
+		printf("两次密码不一致开户失败!");
+		//a[i].qq='';//清除数据
+		//a[i].name='';
+	}
+}
+void xiaohu()////////////////////////////////////////////////////////销户
+{
+	int j=1;
+	int flag;
+	int qq;
+	int mima;
+	printf("请输入账号:");
+	scanf("%d",&qq);
+	printf("请输入密码");
+	scanf("%d",&mima);
+	while(1)
+	{
+		if(a[j].qq==qq)
+		{
+			if(mima==a[j].password)
+			{
+				printf("是否选择销户:1.销户 2.放弃");
+				scanf("%d",&flag);
+				if(flag==1)
+				{
+					printf("销户成功\n");
+					printf("提出金额: %.2f 元\n",a[j].money);
+					a[j].money=0.00;
+					a[j].state=2;//销户
+				}
+				if(flag==2)
+				{
+					printf("销户失败\n");
+				}
+				break;
+			}
+			else
+			{
+				printf("密码错误!\n");
+				break;
+			}
+		}
+		if(a[j].qq!=qq)
+			j++;
+		if(j==MAXn)
+		{
+			printf("未查询到该用户\n");
+			break;
+		}
+	}
+}
+void gaimi()
+{
+	int j=1;
+	int qq=1000;
+	int mima,mima1,mima2;
+	printf("请输入账号:");
+	scanf("%d",&qq);
+	printf("请输入原密码");
+	scanf("%d",&mima);
+	while(1)
+	{
+		if(a[j].qq==qq)
+		{
+			if(a[j].state==1||a[j].state==2)
+				{
+					printf("该账户无法使用\n");
+					break;
+				}
+			if(mima==a[j].password)
+			{
+				printf("输入新密码:");
+				scanf("%d",&mima1);
+				printf("再次输入新密码:");
+				scanf("%d",&mima2);
+				if(mima1==mima2)
+				{
+					a[j].password=mima1;
+					printf("修改成功\n");
+					break;
+				}
+				else
+				{
+					printf("两次密码不一致\n");
+				}
+			}
+			else
+			{
+				printf("原密码错误!\n");
+				break;
+			}
+		}
+		if(a[j].qq!=qq)
+			j++;
+		if(j==MAXn)
+		{
+			printf("未查询到该用户\n");
+			break;
+		}
+	}
+}
+
+void guashi()
+{
+	int j=1;
+	int flag;
+	int qq;
+	int mima;
+	printf("请输入账号:");
+	scanf("%d",&qq);
+	printf("请输入密码");
+	scanf("%d",&mima);
+	while(1)
+	{
+		if(a[j].qq==qq)
+		{
+			if(a[j].state==1||a[j].state==2)
+				{
+					printf("该账户无法使用\n");
+					break;
+				}
+			if(mima==a[j].password)
+			{
+				printf("是否选择挂失:1.挂失 2.放弃");
+				scanf("%d",&flag);
+				if(flag==1)
+				{
+					printf("挂失成功\n");
+					a[j].state=1;//挂失
+				}
+				if(flag==2)
+				{
+					printf("挂失失败\n");
+				}
+				break;
+			}
+			else
+			{
+				printf("密码错误!\n");
+				break;
+			}
+		}
+		if(a[j].qq!=qq)
+			j++;
+		if(j==MAXn)
+		{
+			printf("未查询到该用户\n");
+			break;
+		}
+	}
+}
+void jiegua()
+{
+	int j=1;
+	int flag;
+	int qq;
+	int mima;
+	printf("请输入账号:");
+	scanf("%d",&qq);
+	printf("请输入密码");
+	scanf("%d",&mima);
+	while(1)
+	{
+		if(a[j].qq==qq)
+		{
+			if(a[j].password==mima)
+			{
+				printf("是否选择解挂:1.解挂 2.放弃");
+				scanf("%d",&flag);
+				if(flag==1)
+				{
+					if(a[j].state==0)
+					{
+						printf("该账户正常,无需解挂\n");
+						break;
+					}
+					if(a[j].state==1)
+					{
+						printf("解挂成功\n");
+						a[j].state=0;//解挂
+						break;
+					}
+					if(a[j].state==2)
+					{
+						printf("该账户已销户,无法解挂\n");
+						break;
+					}
+				}
+				if(flag==2)
+				{
+					printf("挂失失败\n");
+				}
+				break;
+			}
+			else
+			{
+				printf("密码错误!\n");
+				break;
+			}
+		}
+		if(a[j].qq!=qq)
+			j++;
+		if(j==MAXn)
+		{
+			printf("未查询到该用户\n");
+			break;
+		}
+	}
+}
+
+void cunkuan()
+{
+	int j=1;
+	float money;
+	int qq;
+	int mima;
+	printf("请输入账号:");
+	scanf("%d",&qq);
+	printf("请输入密码");
+	scanf("%d",&mima);
+	while(1)
+	{
+		if(a[j].qq!=qq)
+			j++;
+		if(a[j].qq==qq)
+		{
+			if(mima==a[j].password)
+			{
+				if(a[j].state==1||a[j].state==2)
+				{
+					printf("该账户无法使用\n");
+					break;
+				}
+				printf("你正在存款 请输入你要存款的金额");
+				scanf("%f",&money);
+				if((money-0.00)>0)
+				{
+					a[j].money+=money;
+					printf("成功存入:%.2f 元\n",money);
+					printf("账户余额:%.2f 元\n",a[j].money);
+					printf("谢谢使用\n");
+					break;
+				}
+				else
+				{
+					printf("金额错误");
+					break;
+				}
+			}
+			if(a[j].qq==qq&&a[j].password!=mima)
+			{printf("密码错误\n");
+			break;
+			}
+		}
+
+		if(j==MAXn)
+		{
+			printf("未查询到该用户\n");
+			break;
+		}
+		
+	}
+}
+void qukuan()
+{
+	int j=1;
+	float money;
+	int mima;
+	int qq;
+	printf("请输入账号:");
+	scanf("%d",&qq);
+	printf("请输入密码:");
+	scanf("%d",&mima);
+	while(1)
+	{
+		if(a[j].qq!=qq)
+			j++;
+		if(a[j].qq==qq)
+		{
+			if(mima=a[j].password)
+			{
+				if(a[j].state==1||a[j].state==2)
+				{
+					printf("该账户无法使用\n");
+					break;
+				}
+				printf("你正在取款 请输入你要取的金额");
+				scanf("%f",&money);
+				if(money<=a[j].money&&money>0)
+				{
+				a[j].money-=money;
+				printf("成功取出:%.2f 元\n",money);
+				printf("你的账户余额:%.2f 元\n",a[j].money);			
+				break;
+				}
+				if((money-a[j].money)>0&&money>=0)
+				{
+				printf("余额不足\n");
+				break;
+				}
+				if(money<=0)
+				{
+				printf("取出金额错误\n");
+				break;
+				}
+			}
+			else
+			{
+				printf("密码错误\n");
+				break;
+			}
+		}
+
+		if(j==MAXn){
+			printf("未查询到该用户\n");
+			break;}
+	}
+}
+void huan()
+{
+	int flag=1;
+	int j=1,k=1;
+	float money=0;
+	float *p;
+	int mima;
+	int qq,qq1;
+	p=&money;
+	printf("请输入账号:");
+	scanf("%d",&qq);
+	printf("请输入密码:");
+	scanf("%d",&mima);			
+	printf("你正在转账 请输入你要转到的账号:");			
+	scanf("%d",&qq1);
+	printf("请你输入转账金额:");
+	scanf("%f",p);
+	while(1)
+	{
+		if(a[j].qq==qq)
+		{
+			if(a[j].state==1||a[j].state==2)
+				{
+					printf("该账户无法使用\n");
+					break;
+				}
+			if(mima=a[j].password)
+			{
+
+				while(1)
+				{
+					if(a[k].qq==qq1)
+					{
+						if(a[k].state==1||a[k].state==2)
+						{
+							printf("该账户无法使用\n");
+							flag=0;
+							break;
+						}
+						printf("找到该用户\n");
+						break;
+					}
+					if(a[k].qq!=qq1)
+						k++;
+					if(k==MAXn)
+					{
+						printf("未查询到该用户\n");
+						flag=0;
+						break;
+					}
+				}
+				if(flag!=1)
+					break;
+				if(*p<=a[j].money&&*p>=0)
+				{
+
+				a[j].money-=*p;
+				a[k].money+=*p;
+				printf("成功转 %.2f 元\n",*p);
+				printf("你的账户余额:%.2f 元\n",a[j].money);			
+				break;
+				}
+				if(*p>=a[j].money&&*p>=0)
+				{
+				printf("余额不足\n");
+				break;
+				}
+				else
+				{
+				printf("转账金额错误\n");
+				break;
+
+				}
+			}
+
+			else
+			{
+				printf("密码错误\n");
+				break;
+			}
+		}
+		if(a[j].qq!=qq){
+			j++;}
+		if(j==MAXn){
+			printf("未查询到该用户\n");
+			break;}
+	}
+}
+
+
+
+
+
